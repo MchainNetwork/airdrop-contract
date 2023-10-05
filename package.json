@@ -1,0 +1,39 @@
+{
+  "name": "airdrop-contract",
+  "version": "0.1.0",
+  "description": "A smart contract for efficiently conducting bulk transfers of MAR ERC20 tokens on the Polygon zkEVM network.",
+  "scripts": {
+    "test": "truffle test",
+    "compile": "truffle compile",
+    "migrate": "truffle migrate",
+    "migrate:dashboard": "truffle migrate --network dashboard",
+    "truffle:dashboard": "truffle dashboard"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MchainNetwork/airdrop-contract.git"
+  },
+  "keywords": [
+    "mchain",
+    "erc20",
+    "smart contract",
+    "ethereum",
+    "solidity",
+    "airdrop"
+  ],
+  "author": "Mchain",
+  "license": "MIT",
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.9.3",
+    "@openzeppelin/test-helpers": "^0.5.16",
+    "chai": "^4.3.8",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "open": "^9.1.0",
+    "papaparse": "^5.4.1",
+    "web3": "^4.1.2"
+  },
+  "devDependencies": {
+    "truffle-plugin-verify": "^0.6.5"
+  }
+}
