@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Bulk Transfer</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bignumber.js/9.1.2/bignumber.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.3.0/dist/web3.min.js"></script>
+  </head>
+  <body class="bg-gray-200">
+    <div class="container mx-auto p-12">
+      <h1 class="text-3xl mb-4">Bulk Transfer</h1>
+
+      <!-- MetaMask Address & Token Balance -->
+      <div id="accountInfo" class="mb-4"></div>
+      <div id="tokenBalance" class="mb-4"></div>
+
+      <div class="mb-4">
+        <label
+          for="tokenAddress"
+          class="block text-sm font-medium text-gray-700"
+          >Token Address:</label
+        >
+        <input
+          type="text"
+          id="tokenAddress"
+          class="mt-1 p-2 w-full rounded-md border"
+          value=""
+          oninput="getAccountInfo()"
+        />
+      </div>
+
+      <div class="mb-4">
+        <label for="csvData" class="block text-sm font-medium text-gray-700"
+          >CSV Data:</label
+        >
+        <textarea
+          id="csvData"
+          rows="4"
+          class="mt-1 p-2 w-full rounded-md border"
+        ></textarea>
+        <small class="block text-sm text-gray-600"
+          >CSV Format: address,amount</small
+        >
+      </div>
+
+      <div>
+        <button
+          onclick="approveAllowance()"
+          class="bg-blue-500 text-white p-2 rounded-md mr-4 hover:bg-blue-700"
+        >
+          Approve Allowance
+        </button>
+        <button
+          onclick="performBulkTransfer()"
+          class="bg-green-500 text-white p-2 rounded-md hover:bg-green-700"
+        >
+          Perform Bulk Transfer
+        </button>
+      </div>
+    </div>
+    <script>
+      if (window.ethereum) {
+        window.web3 = new Web3(window.ethereum);
+      } else if (window.web3) {
+        window.web3 = new Web3(window.web3.currentProvider);
+      } else {
+        alert(
+          'Non-Ethereum browser detected. You should consider trying MetaMask!'
+        );
+      }
+
+      let tokenDecimals, tokenSymbol;
+
+      const abi = [
+        {
+          inputs: [
+            {
+              internalType: 'address[]',
+              name: 'recipients',
+              type: 'address[]',
+            },
+            {
+              internalType: 'uint256[]',
+              name: 'amounts',
+              type: 'uint256[]',
+            },
+          ],
+          name: 'bulkTransfer',
+          outputs: [],
+          stateMutability: 'nonpayable',
+          type: 'function',
+        },
+        {
+          inputs: [
+            {
+              internalType: 'address',
+              name: 'spender',
+              type: 'address',
+            },
+            {
+              internalType: 'uint256',
+              name: 'amount',
+              type: 'uint256',
+            },
+          ],
+          name: 'approve',
+          outputs: [
+            {
+              internalType: 'bool',
+              name: '',
+              type: 'bool',
+            },
+          ],
+          stateMutability: 'nonpayable',
+          type: 'function',
+        },
+        {
+          inputs: [
+            {
+              internalType: 'address',
+              name: 'account',
+              type: 'address',
+            },
+          ],
+          name: 'balanceOf',
+          outputs: [
+            {
+              internalType: 'uint256',
+              name: '',
+              type: 'uint256',
+            },
+          ],
+          stateMutability: 'view',
+          type: 'function',
+        },
+        {
+          inputs: [],
+          name: 'symbol',
+          outputs: [
+            {
+              internalType: 'string',
+              name: '',
+              type: 'string',
+            },
+          ],
+          stateMutability: 'view',
+          type: 'function',
+        },
+        {
+          inputs: [],
+          name: 'decimals',
+          outputs: [
+            {
+              internalType: 'uint8',
+              name: '',
+              type: 'uint8',
+            },
+          ],
+          stateMutability: 'view',
+          type: 'function',
+        },
+      ];
+
+      function fromWei(amountInWei, decimals) {
+        const divisor = new BigNumber(10).pow(new BigNumber(decimals));
+        return new BigNumber(amountInWei).dividedBy(divisor);
+      }
+
+      function toWei(amount, decimals) {
+        const multiplier = new BigNumber(10).pow(new BigNumber(decimals));
+        return new BigNumber(amount).multipliedBy(multiplier);
+      }
+
+      async function getAccountInfo() {
+        const accounts = await window.ethereum.request({
+          method: 'eth_requestAccounts',
+        });
+        const account = accounts[0];
+
+        document.getElementById(
+          'accountInfo'
+        ).innerText = `Connected MetaMask Address: ${account}`;
+
+        const tokenAddress = document.getElementById('tokenAddress').value;
+        if (tokenAddress) {
+          const contract = new web3.eth.Contract(abi, tokenAddress);
+
+          tokenDecimals = await contract.methods.decimals().call();
+          tokenSymbol = await contract.methods.symbol().call();
+
+          const balance = await contract.methods.balanceOf(account).call();
+          const balanceInEther = fromWei(balance, tokenDecimals);
+
+          document.getElementById(
+            'tokenBalance'
+          ).innerText = `Token Balance: ${balanceInEther} ${tokenSymbol}`;
+        }
+      }
+
+      function processCSV() {
+        const recipients = [];
+        const amounts = [];
+        let totalAmount = new BigNumber(0);
+
+        const csvData = document.getElementById('csvData').value;
+
+        const rows = csvData.split('\n');
+
+        for (let i = 0; i < rows.length; i++) {
+          const [address, amount] = rows[i].split(',');
+          if (address && amount) {
+            recipients.push(address);
+            const amountInWei = toWei(amount, tokenDecimals);
+            amounts.push(web3.utils.toBN(amountInWei.toFixed(0)));
+            totalAmount = totalAmount.plus(amountInWei);
+          }
+        }
+
+        console.log(`Total amount in Wei: ${totalAmount.toFixed(0)}`);
+
+        return { totalAmount, recipients, amounts };
+      }
+
+      async function approveAllowance() {
+        const tokenAddress = document.getElementById('tokenAddress').value;
+        const accounts = await window.ethereum.request({
+          method: 'eth_requestAccounts',
+        });
+
+        const tokenContract = new web3.eth.Contract(abi, tokenAddress);
+
+        const { totalAmount } = processCSV();
+
+        try {
+          await tokenContract.methods
+            .approve(tokenAddress, web3.utils.toBN(totalAmount.toFixed(0)))
+            .send({ from: accounts[0] });
+          alert('Allowance approved');
+        } catch (err) {
+          alert(
+            `An error occurred while approving the allowance: ${
+              err.message || err
+            }`
+          );
+          console.error(err);
+        }
+      }
+
+      async function performBulkTransfer() {
+        const tokenAddress = document.getElementById('tokenAddress').value;
+        const accounts = await window.ethereum.request({
+          method: 'eth_requestAccounts',
+        });
+
+        const contract = new web3.eth.Contract(abi, tokenAddress);
+
+        const { recipients, amounts } = processCSV();
+
+        try {
+          await contract.methods
+            .bulkTransfer(recipients, amounts)
+            .send({ from: accounts[0] });
+          alert('Bulk transfer completed');
+        } catch (err) {
+          alert(`An error occurred: ${err.message || err}`);
+          console.error(err);
+        }
+      }
+
+      window.ethereum.on('accountsChanged', getAccountInfo);
+      window.ethereum.on('chainChanged', () => {
+        window.location.reload();
+      });
+      window.ethereum.on('disconnect', () => {
+        alert('MetaMask has been disconnected!');
+      });
+
+      if (window.web3) {
+        getAccountInfo();
+      }
+    </script>
+  </body>
+</html>
