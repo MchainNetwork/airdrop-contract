@@ -10,6 +10,9 @@ module.exports = {
       port: 7545,
       network_id: '*',
     },
+    zkevm: {
+      network_id: 1101,
+    },
     dashboard: {
       networkCheckTimeout: 120000,
       network_id: '*',
