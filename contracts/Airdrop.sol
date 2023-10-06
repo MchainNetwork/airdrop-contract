@@ -34,10 +34,6 @@ contract Airdrop is Ownable {
             recipients.length == amounts.length,
             "The number of recipients should be equal to the number of amounts"
         );
-        require(
-            recipients.length <= 100,
-            "Too many recipients, the transaction might run out of gas"
-        );
 
         uint256 totalAmount = 0;
         for (uint256 i = 0; i < amounts.length; i++) {
