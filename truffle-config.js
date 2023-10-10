@@ -10,6 +10,9 @@ module.exports = {
       port: 7545,
       network_id: '*',
     },
+    polygon: {
+      network_id: 137,
+    },
     zkevm: {
       network_id: 1101,
     },
