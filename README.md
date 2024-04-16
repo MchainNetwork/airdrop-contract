@@ -77,7 +77,7 @@ truffle test
 
 ## Deployed Contract
 
-`[0x731670572D5aF7876031c68a3F87C2445CbBF823](https://arbiscan.io/address/0x731670572D5aF7876031c68a3F87C2445CbBF823#code)`
+[0x731670572D5aF7876031c68a3F87C2445CbBF823](https://arbiscan.io/address/0x731670572D5aF7876031c68a3F87C2445CbBF823#code)
 
 ### License
 
