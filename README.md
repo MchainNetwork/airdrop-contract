@@ -1,6 +1,6 @@
 ### Airdrop Contract
 
-This repository contains a smart contract for conducting ERC20 token airdrops, specifically designed and utilized for the airdrops of MAR ERC20 tokens on the Polygon zkEVM network. The contract allows users to send a specific ERC20 token to multiple recipients in a single transaction, ensuring efficiency and cost-effectiveness.
+This repository contains a smart contract for conducting ERC20 token airdrops, specifically designed and utilized for the airdrops of MARK tokens on the Arbitrum One network. The contract allows users to send a specific ERC20 token to multiple recipients in a single transaction, ensuring efficiency and cost-effectiveness.
 
 ### Features
 

@@ -10,27 +10,31 @@ module.exports = {
       port: 7545,
       network_id: '*',
     },
-    polygon: {
-      network_id: 137,
-    },
-    zkevm: {
-      network_id: 1101,
+    arbitrum: {
+      network_id: 42161,
     },
     dashboard: {
       networkCheckTimeout: 120000,
-      network_id: '*',
+      network_id: 42161,
       from: process.env.DEPLOYER_ADDRESS,
+      gas: 2000000,
+      gasPrice: 500000000,
     },
   },
   compilers: {
     solc: {
       version: '0.8.8',
+      settings: {
+        optimizer: {
+          enabled: true,
+          runs: 200,
+        },
+      },
     },
   },
   plugins: ['truffle-plugin-verify'],
   api_keys: {
     etherscan: process.env.ETHERSCAN_API_KEY,
-    polygonscan: process.env.POLYGONSCAN_API_KEY,
-    zkevm_polygonscan: process.env.ZKEVM_POLYGONSCAN_API_KEY,
+    arbiscan: process.env.ARBISCAN_API_KEY,
   },
 };
