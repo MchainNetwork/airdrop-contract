@@ -75,6 +75,10 @@ To run the unit tests, start Ganache and execute:
 truffle test
 ```
 
+## Deployed Contract
+
+`https://arbiscan.io/address/0x731670572D5aF7876031c68a3F87C2445CbBF823#code`
+
 ### License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
